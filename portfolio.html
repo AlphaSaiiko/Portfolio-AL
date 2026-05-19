@@ -1,3 +1,15 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Saiiko — Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js"></script>
+<style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
   --black:#050508;--dark:#0d0d14;
@@ -183,3 +195,297 @@ footer{padding:36px 48px;border-top:1px solid rgba(255,255,255,.05);display:flex
   .skills-grid{grid-template-columns:1fr;padding:0 24px}
   footer{flex-direction:column;gap:12px;text-align:center}
 }
+</style>
+</head>
+<body>
+<div id="progress-bar"></div>
+
+<div id="loader">
+  <div class="loader-wipe" id="loaderWipe"></div>
+  <div class="loader-logo" id="loaderLogo">SAIIKO</div>
+  <div class="loader-bar-wrap"><div class="loader-bar" id="loaderBar"></div></div>
+  <div class="loader-label" id="loaderLabel">Chargement du portfolio</div>
+</div>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+<div id="cursor-glow"></div>
+
+<nav id="mainNav">
+  <div class="nav-glass"></div>
+  <a href="#hero" class="nav-logo">Saiiko</a>
+  <ul class="nav-links">
+    /* Lines 222-226 omitted */
+  </ul>
+</nav>
+
+<section id="hero">
+  <div id="hero-bg"></div>
+  <div id="hero-grid"></div>
+  <div class="hero-noise"></div>
+  <canvas id="heroCanvas"></canvas>
+  <div id="hero-content">
+    /* Lines 235-242 omitted */
+  </div>
+  <div id="hero-scroll"><p>Scroll</p><div class="scroll-line"></div></div>
+</section>
+
+<div class="banner-section">
+  <div class="banner-track" id="bannerTrack">
+    /* Lines 248-264 omitted */
+  </div>
+</div>
+
+<section id="about">
+  <div class="about-inner">
+    /* Lines 269-284 omitted */
+  </div>
+</section>
+
+<div class="wipe-line"><div class="wipe-inner"></div></div>
+
+<div id="projects">
+
+  <div class="project-section">
+    /* Lines 292-312 omitted */
+  </div>
+
+  <div class="wipe-line"><div class="wipe-inner"></div></div>
+
+  <div class="project-section reverse">
+    /* Lines 317-336 omitted */
+  </div>
+
+  <div class="wipe-line"><div class="wipe-inner"></div></div>
+
+  <div class="project-section">
+    /* Lines 341-360 omitted */
+  </div>
+
+  <div class="wipe-line"><div class="wipe-inner"></div></div>
+
+  <div class="project-section reverse">
+    /* Lines 365-384 omitted */
+  </div>
+
+  <div class="wipe-line"><div class="wipe-inner"></div></div>
+
+  <div class="project-section">
+    /* Lines 389-408 omitted */
+  </div>
+
+</div>
+
+<section id="skills">
+  <div class="skills-header">
+    /* Lines 414-417 omitted */
+  </div>
+  <div class="skills-grid">
+    /* Lines 419-425 omitted */
+  </div>
+</section>
+
+<section id="contact">
+  <div class="contact-inner">
+    /* Lines 430-438 omitted */
+  </div>
+</section>
+
+<footer id="footer">
+  <div class="footer-logo">SAIIKO — Portfolio 2025</div>
+  <div class="footer-copy">Étudiant en informatique — IUT du Havre</div>
+</footer>
+
+<script>
+gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+
+/* ─────────────────────────────────────
+   HELPER — split words into span pairs
+───────────────────────────────────── */
+function splitWords(el){
+  const parts = el.innerHTML.split(/<br\s*\/>/i);
+  el.innerHTML = parts.map(p =>
+    /* Lines 455-457 omitted */
+    ).join('&nbsp;')
+  ).join('<br>');
+  return el.querySelectorAll('.word-inner');
+}
+
+/* ─────────────────────────────────────
+   CURSOR
+───────────────────────────────────── */
+const dot  = document.getElementById('cursor');
+const ring = document.getElementById('cursor-ring');
+const glow = document.getElementById('cursor-glow');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove', e=>{ mx=e.clientX; my=e.clientY;
+  gsap.to(dot,  {x:mx,y:my,duration:.06,ease:'none'});
+  gsap.to(glow, {x:mx,y:my,duration:.55,ease:'power2.out'});
+});
+(function lr(){ rx+=(mx-rx)*.1; ry+=(my-ry)*.1; gsap.set(ring,{x:rx,y:ry}); requestAnimationFrame(lr); })();
+document.querySelectorAll('a,button').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{
+    /* Lines 476-478 omitted */
+    gsap.to(glow, {width:520,height:520,duration:.45});
+  });
+  el.addEventListener('mouseleave',()=>{
+    /* Lines 481-483 omitted */
+    gsap.to(glow, {width:340,height:340,duration:.45});
+  });
+});
+
+/* ─────────────────────────────────────
+   HERO 3D PARTICLE FIELD (WebGL-style canvas)
+   Floating connected dots reacting to mouse
+───────────────────────────────────── */
+(function initParticles(){
+  const cv  = document.getElementById('heroCanvas');
+  const ctx = cv.getContext('2d');
+  let W, H, pts=[];
+  function rsz(){ W=cv.width=cv.offsetWidth; H=cv.height=cv.offsetHeight; }
+  rsz(); window.addEventListener('resize', rsz);
+
+  const COUNT = 80;
+  for(let i=0;i<COUNT;i++) pts.push({
+    /* Lines 500-502 omitted */
+    r: Math.random()*1.5+.4, z:Math.random()
+  });
+
+  let mouseX=W/2, mouseY=H/2;
+  document.addEventListener('mousemove', e=>{ mouseX=e.clientX; mouseY=e.clientY; });
+
+  function draw(){/* Lines 509-539 omitted */}
+  draw();
+})();
+
+/* ─────────────────────────────────────
+   SNOW CANVAS (project 1)
+───────────────────────────────────── */
+document.querySelectorAll('.snow-canvas').forEach(cv=>{
+  const ctx=cv.getContext('2d'), pts=[];
+  function rsz(){ cv.width=cv.offsetWidth; cv.height=cv.offsetHeight; }
+  rsz(); window.addEventListener('resize',rsz);
+  for(let i=0;i<70;i++) pts.push({x:Math.random()*1920,y:Math.random()*1080,r:Math.random()*2+.4,dx:(Math.random()-.5)*.35,dy:Math.random()*.45+.15,o:Math.random()*.5+.2});
+  (function draw(){ ctx.clearRect(0,0,cv.width,cv.height); pts.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=`rgba(200,220,255,${p.o})`;ctx.fill();p.x+=p.dx;p.y+=p.dy;if(p.y>cv.height){p.y=-5;p.x=Math.random()*cv.width;}if(p.x<0||p.x>cv.width)p.x=Math.random()*cv.width;}); requestAnimationFrame(draw); })();
+});
+
+/* ─────────────────────────────────────
+   LOADER → PAGE
+───────────────────────────────────── */
+gsap.timeline({ onComplete: initPage })
+  .to('#loaderBar',   {width:'100%',duration:.9,ease:'power2.inOut'})
+  .to('#loaderLabel', {opacity:1,duration:.35},'-=.65')
+  .to('#loaderLogo',  {clipPath:'inset(0 0% 0 0)',duration:.95,ease:'power3.inOut'},'-=.4')
+  .to(['#loaderLabel','#loaderBar'],{opacity:0,duration:.3},'+=.35')
+  .to('#loaderWipe',  {scaleY:1,duration:.55,ease:'power3.inOut'})
+  .to('#loaderLogo',  {y:-40,opacity:0,duration:.3,ease:'power2.in'},'-=.2')
+  .to('#loader',      {yPercent:-100,duration:.8,ease:'power3.inOut'},'+=.05');
+
+
+function initPage(){
+  document.getElementById('loader').style.display='none';
+
+  /* PROGRESS BAR */
+  gsap.to('#progress-bar',{width:'100%',ease:'none',scrollTrigger:{trigger:'body',start:'top top',end:'bottom bottom',scrub:true}});
+
+  /* NAV glass */
+  ScrollTrigger.create({start:80,
+    /* Lines 575-576 omitted */
+    onLeaveBack:()=>document.getElementById('mainNav').classList.remove('scrolled'),
+  });
+
+  /* ══════════════════════════════════════
+     /* Lines 580-582 omitted */
+     at different speeds = real depth feel
+  ══════════════════════════════════════ */
+  const layers = [
+    /* Lines 585-592 omitted */
+  ];
+  const heroEl = document.getElementById('hero');
+  heroEl.addEventListener('mousemove', e=>{/* Lines 595-601 omitted */});
+  });
+  heroEl.addEventListener('mouseleave',()=>{
+    layers.forEach(({el})=> gsap.to(el,{x:0,y:0,duration:1.5,ease:'elastic.out(1,.5)'}));
+  });
+
+  /* Hero scroll parallax scrub */
+  gsap.to('#hero-bg',   {yPercent:42,ease:'none',scrollTrigger:{trigger:'#hero',start:'top top',end:'bottom top',scrub:true}});
+  gsap.to('#hero-grid', {yPercent:22,ease:'none',scrollTrigger:{trigger:'#hero',start:'top top',end:'bottom top',scrub:true}});
+  gsap.to('#hero-content',{yPercent:28,opacity:0,ease:'none',scrollTrigger:{trigger:'#hero',start:'top top',end:'68% top',scrub:true}});
+
+  /* Hero entrance */
+  const hw1=splitWords(document.getElementById('heroLine1'));
+  const hw2=splitWords(document.getElementById('heroLine2'));
+  gsap.timeline({defaults:{ease:'expo.out'}})
+    /* Lines 616-624 omitted */
+
+  /* ══════════════════════════════════════
+     /* Lines 626-627 omitted */
+     Sections fold open from the top like a book page
+  ══════════════════════════════════════ */
+  // About
+  gsap.from('#about',{ 
+    /* Lines 631-634 omitted */
+    scrollTrigger:{trigger:'#about',start:'top 88%',toggleActions:'play none none none'}
+  });
+
+  /* ABOUT content */
+  gsap.to('#aboutLabel',{clipPath:'inset(0 0% 0 0)',duration:.8,ease:'power3.inOut',scrollTrigger:{trigger:'#about',start:'top 72%',toggleActions:'play none none none'}});
+  const atw=splitWords(document.getElementById('aboutTitle'));
+  gsap.to(atw,{y:'0%',duration:.8,stagger:.07,ease:'expo.out',scrollTrigger:{trigger:'#about',start:'top 68%',toggleActions:'play none none none'}});
+  ['#aboutText1','#aboutText2'].forEach((sel,i)=>{
+    /* Lines 642-643 omitted */
+    gsap.to(words,{y:'0%',stagger:.035,ease:'power2.out',scrollTrigger:{trigger:'#about',start:`top ${64-i*6}%`,end:`top ${28-i*4}%`,scrub:.5}});
+  });
+  ScrollTrigger.create({trigger:'.stats-row',start:'top 82%',onEnter(){/* Lines 646-649 omitted */});
+  }});
+  gsap.to('#aboutQuote',{opacity:1,x:0,duration:1.1,ease:'power3.out',scrollTrigger:{trigger:'#aboutQuote',start:'top 76%',toggleActions:'play none none none'}});
+
+  /* WIPE LINES */
+  document.querySelectorAll('.wipe-inner').forEach(line=>{
+    gsap.to(line,{scaleX:1,duration:1.3,ease:'power3.inOut',scrollTrigger:{trigger:line,start:'top 92%',toggleActions:'play none none none'}});
+  });
+
+  /* BANNER */
+  const track=document.getElementById('bannerTrack');
+  ScrollTrigger.create({start:0,end:'max',onUpdate(self){
+    /* Lines 661-663 omitted */
+    track.style.animationDirection=v<0?'reverse':'normal';
+  }});
+
+  /* ══════════════════════════════════════
+     /* Lines 667-668 omitted */
+     3D rotateX fold-in + parallax + tilt
+  ══════════════════════════════════════ */
+  document.querySelectorAll('.project-section').forEach((section,idx)=>{/* Lines 671-747 omitted */});
+  });
+
+  /* ══════════════════════════════════════
+     /* Lines 751-752 omitted */
+     Each card tilts toward cursor + glowing shine
+  ══════════════════════════════════════ */
+  document.querySelectorAll('.skill-card').forEach((card,i)=>{/* Lines 755-783 omitted */});
+  });
+
+  /* SKILLS header */
+  gsap.to('#skillsEyebrow',{opacity:1,y:0,duration:.65,ease:'power2.out',scrollTrigger:{trigger:'#skills',start:'top 72%',toggleActions:'play none none none'}});
+  const stw=splitWords(document.getElementById('skillsTitle'));
+  gsap.to(stw,{y:'0%',duration:.9,stagger:.11,ease:'expo.out',scrollTrigger:{trigger:'#skills',start:'top 68%',toggleActions:'play none none none'}});
+  gsap.to('#skillsSub',{opacity:1,y:0,duration:.65,ease:'power2.out',scrollTrigger:{trigger:'#skills',start:'top 64%',toggleActions:'play none none none'}});
+
+  /* ══════════════════════════════════════
+     EFFECT 6 — CONTACT: 3D FOLD ENTRANCE + GLITCH
+  ══════════════════════════════════════ */
+  gsap.from('#contact .contact-inner',{ 
+    /* Lines 796-799 omitted */
+    scrollTrigger:{trigger:'#contact',start:'top 80%',toggleActions:'play none none none'}
+  });
+  gsap.to('#contactLabel',{opacity:1,y:0,duration:.65,scrollTrigger:{trigger:'#contact',start:'top 72%',toggleActions:'play none none none'}});
+  const ctw=splitWords(document.getElementById('contactTitle'));
+  gsap.to(ctw,{y:'0%',duration:.9,stagger:.09,ease:'expo.out',scrollTrigger:{trigger:'#contact',start:'top 68%',toggleActions:'play none none none'}});
+  /* Lines 804-845 omitted */
+
+} /* end initPage */
+</script>
+</body>
+</html>

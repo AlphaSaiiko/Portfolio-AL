@@ -1,0 +1,37 @@
+{
+  "name": "portfolio-saiiko",
+  "version": "1.0.0",
+  "description": "Portfolio personnel de Saiiko - Développeur Web & Mobile",
+  "main": "index.html",
+  "scripts": {
+    "dev": "python -m http.server 8000",
+    "build": "echo 'Build command for future use'",
+    "preview": "open http://localhost:8000"
+  },
+  "keywords": [
+    "portfolio",
+    "developer",
+    "web",
+    "mobile",
+    "react",
+    "animations"
+  ],
+  "author": "Saiiko",
+  "license": "UNLICENSED",
+  "projectInfo": {
+    "title": "Portfolio — Saiiko",
+    "description": "Un portfolio web moderne et interactif",
+    "author": "Saiiko",
+    "email": "contact@saiiko.com",
+    "university": "IUT du Havre",
+    "year": 2026
+  },
+  "dependencies": {
+    "gsap": "3.12.5"
+  },
+  "externalLibraries": {
+    "gsap": "https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js",
+    "scrollTrigger": "https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js",
+    "scrollToPlugin": "https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js"
+  }
+}
